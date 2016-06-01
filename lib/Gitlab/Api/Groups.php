@@ -2,6 +2,9 @@
 
 class Groups extends AbstractApi
 {
+    const ORDER_BY = 'created_at';
+    const SORT = 'asc';
+
     /**
      * @param int $page
      * @param int $per_page
@@ -23,7 +26,7 @@ class Groups extends AbstractApi
      */
     public function search($query, $page = 1, $per_page = self::PER_PAGE)
     {
-        return $this->get('groups?search='.$this->encodePath($query), array(
+        return $this->get('groups?search=' . $this->encodePath($query), array(
             'page' => $page,
             'per_page' => $per_page
         ));
@@ -35,7 +38,7 @@ class Groups extends AbstractApi
      */
     public function show($id)
     {
-        return $this->get('groups/'.$this->encodePath($id));
+        return $this->get('groups/' . $this->encodePath($id));
     }
 
     /**
@@ -60,7 +63,7 @@ class Groups extends AbstractApi
      */
     public function remove($group_id)
     {
-        return $this->delete('groups/'.$this->encodePath($group_id));
+        return $this->delete('groups/' . $this->encodePath($group_id));
     }
 
     /**
@@ -70,7 +73,7 @@ class Groups extends AbstractApi
      */
     public function transfer($group_id, $project_id)
     {
-        return $this->post('groups/'.$this->encodePath($group_id).'/projects/'.$this->encodePath($project_id));
+        return $this->post('groups/' . $this->encodePath($group_id) . '/projects/' . $this->encodePath($project_id));
     }
 
     /**
@@ -81,9 +84,27 @@ class Groups extends AbstractApi
      */
     public function members($id, $page = 1, $per_page = self::PER_PAGE)
     {
-        return $this->get('groups/'.$this->encodePath($id).'/members', array(
+        return $this->get('groups/' . $this->encodePath($id) . '/members', array(
             'page' => $page,
             'per_page' => $per_page
+        ));
+    }
+
+    /**
+     * @param int $id
+     * @param string $search Search Query
+     * @param int $page
+     * @param int $per_page
+     * @return mixed
+     */
+    public function projects($id, $search = null, $page = 1, $per_page = self::PER_PAGE, $order_by = self::ORDER_BY, $sort = self::SORT)
+    {
+        return $this->get('groups/' . $this->encodePath($id) . '/projects', array(
+            'page' => $page,
+            'per_page' => $per_page,
+            'order_by' => $order_by,
+            'sort' => $sort,
+            'search' => $search
         ));
     }
 
@@ -95,7 +116,7 @@ class Groups extends AbstractApi
      */
     public function addMember($group_id, $user_id, $access_level)
     {
-        return $this->post('groups/'.$this->encodePath($group_id).'/members', array(
+        return $this->post('groups/' . $this->encodePath($group_id) . '/members', array(
             'user_id' => $user_id,
             'access_level' => $access_level
         ));
@@ -109,7 +130,7 @@ class Groups extends AbstractApi
      */
     public function saveMember($group_id, $user_id, $access_level)
     {
-        return $this->put('groups/'.$this->encodePath($group_id).'/members/'.$this->encodePath($user_id), array(
+        return $this->put('groups/' . $this->encodePath($group_id) . '/members/' . $this->encodePath($user_id), array(
             'access_level' => $access_level
         ));
     }
@@ -121,6 +142,6 @@ class Groups extends AbstractApi
      */
     public function removeMember($group_id, $user_id)
     {
-        return $this->delete('groups/'.$this->encodePath($group_id).'/members/'.$this->encodePath($user_id));
+        return $this->delete('groups/' . $this->encodePath($group_id) . '/members/' . $this->encodePath($user_id));
     }
 }

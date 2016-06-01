@@ -9,7 +9,6 @@ use Gitlab\Client;
  * @property-read string $name
  * @property-read string $path
  * @property-read string $description
- * @property-read Project[] $projects
  */
 class Group extends AbstractModel
 {
@@ -25,23 +24,13 @@ class Group extends AbstractModel
     );
 
     /**
+     * @param int $id
      * @param Client $client
-     * @param array  $data
-     * @return Group
      */
-    public static function fromArray(Client $client, array $data)
+    public function __construct($id, Client $client = null)
     {
-        $group = new static($data['id'], $client);
-
-        if (isset($data['projects'])) {
-            $projects = array();
-            foreach ($data['projects'] as $project) {
-                $projects[] = Project::fromArray($client, $project);
-            }
-            $data['projects'] = $projects;
-        }
-
-        return $group->hydrate($data);
+        $this->setClient($client);
+        $this->setData('id', $id);
     }
 
     /**
@@ -58,13 +47,23 @@ class Group extends AbstractModel
     }
 
     /**
-     * @param int $id
      * @param Client $client
+     * @param array $data
+     * @return Group
      */
-    public function __construct($id, Client $client = null)
+    public static function fromArray(Client $client, array $data)
     {
-        $this->setClient($client);
-        $this->setData('id', $id);
+        $group = new static($data['id'], $client);
+
+        if (isset($data['projects'])) {
+            $projects = array();
+            foreach ($data['projects'] as $project) {
+                $projects[] = Project::fromArray($client, $project);
+            }
+            $data['projects'] = $projects;
+        }
+
+        return $group->hydrate($data);
     }
 
     /**
@@ -101,6 +100,21 @@ class Group extends AbstractModel
         }
 
         return $members;
+    }
+
+    /**
+     * @return Project[]
+     */
+    public function projects()
+    {
+        $data = $this->api('groups')->projects($this->id);
+
+        $projects = array();
+        foreach ($data as $project) {
+            $projects[] = Project::fromArray($this->getClient(), $project);
+        }
+
+        return $projects;
     }
 
     /**
